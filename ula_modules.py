@@ -23,9 +23,12 @@ def fullAdder(a, b, c, soma, carry):
     # s2 = Signal(bool(0)) 
     # s3 = Signal(bool(0))
     s = [Signal(bool(0)) for i in range(3)]
+    haList = [None for i in range(2)]
 
-    half_1 = halfAdder(a, b, s[0], s[1]) 
-    half_2 = halfAdder(c, s[0], soma, s[2])
+    # half_1 = halfAdder(a, b, s[0], s[1]) 
+    # half_2 = halfAdder(c, s[0], soma, s[2])
+    haList[0] = halfAdder(a, b, s[0], s[1]) 
+    haList[1] = halfAdder(c, s[0], soma, s[2])
 
     @always_comb
     def comb():
@@ -50,8 +53,18 @@ def adder2bits(x, y, soma, carry):
 
 @block
 def adder(x, y, soma, carry):
+    n = len(x)
+    carry_in = [Signal(bool(0)) for _ in range(n + 1)]
+    
+    carry_in[0].next = False
+
+    faList = [None for _ in range(n)]
+
+    for i in range(n):
+        faList[i] = fullAdder(x[i], y[i], carry_in[i], soma[i], carry_in[i+1])
+
     @always_comb
     def comb():
-        pass
+        carry.next = carry_in[n]
 
     return instances()
